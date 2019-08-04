@@ -8,6 +8,11 @@ Before the workshop:
 - You should now have a folder with two things inside it: 
     + The R Markdown file 
     + An empty subfolder called "data"
+- Install the following packages: haven, tidyverse, tableone
+    
+After completing the above, if you want to save time and avoid potential trouble connecting to wireless you can also...
+
+- Open the .Rmd you saved and run the code chunk from line 33 to 51 (this may take a few minutes to run)
 
 I would recommend also downloading the codebook and the article we will be referring to in the workshop and making sure you can open them: 
 
