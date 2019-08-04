@@ -1,0 +1,12 @@
+h2 {
+  font-size: 30px !important;
+}
+
+h3 {
+  font-size: 25px !important;
+}
+
+.pre {
+  height: 30pc;
+  overflow-y: scroll;
+}
