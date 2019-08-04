@@ -1,0 +1,496 @@
+---
+title: "St. Louis R Users Workshop"
+date: "August 7, 2019" 
+output: html_document
+---
+
+```{r}
+# PROLOG   ################################################################
+
+# PROJECT: NAME OF PROJECT HERE
+# PURPOSE: MAJOR POINT(S) OF WHAT I AM DOING WITH THE DATA HERE
+# DIR:     list directory(-ies) for files here
+# DATA:    list dataset file names/availability here, e.g.,
+#          filename.correctextention 
+#          somewebaddress.com 
+# AUTHOR:  AUTHOR NAME(S) 
+# CREATED: MONTH dd, YEAR 
+# LATEST:  MONTH dd, YEAR 
+# NOTES:   indent all additional lines under each heading, 
+#          & use the apostrophe hashmark bookends that appear  
+#          KEEP PURPOSE, AUTHOR, CREATED & LATEST ENTRIES IN UPPER CASE, 
+#          with appropriate case for DIR & DATA, lower case for notes 
+#          If multiple lines become too much, 
+#          simplify and write code book and readme. 
+
+# PROLOG   ###############################################################
+```
+
+# Data importing
+
+Code used to import and save the data described in the table from the internet (this takes a while):
+
+```{r}
+# open the haven package to read an xpt
+library(package = "haven")
+
+# create a temporary file to store the zipped file
+# before you open it
+temp <- tempfile(fileext = ".zip")
+
+# use download.file to put the zipped file in the temp file
+# this will take a couple of minutes depending on computer speed
+download.file(url = "http://www.cdc.gov/brfss/annual_data/2014/files/LLCP2014XPT.zip",
+              destfile = temp)
+
+# unzip it and read it
+brfss.2014 <- read_xpt(file = temp)
+
+# save it to data folder
+write.csv(x = brfss.2014, file = "data/brfss_2014.csv", row.names = FALSE)
+```
+
+Load libraries and open saved data:
+
+```{r}
+# open tidyverse for data management
+library(package = "tidyverse") 
+
+# open tableone for making a table
+library(package = "tableone")
+
+# import data 
+brfss.2014 <- read.csv(file = "data/brfss_2014.csv")
+```
+
+This is a massive data set! Luckily, they document it really well in the [codebook](https://www.cdc.gov/brfss/annual_data/2014/pdf/CODEBOOK14_LLCP.pdf). 
+
+# Data selection 
+
+Use `select()` in the `tidyverse` to select a subset of the variables for the table. Incude the `HADMAM` variable for reasons we will discover later. 
+
+```{r}
+# get a subset of variables 
+brfss.2014.small <- brfss.2014 %>%
+  select(TRNSGNDR, X_AGEG5YR, X_RACE, X_INCOMG,
+         X_EDUCAG, HLTHPLN1, HADMAM)
+
+# Take a quick look
+summary(object = brfss.2014.small)
+```
+
+The table does not include all 464,664 people in the data set. Reading through the paper and looking at the table you'd find that the table includes: 
+
+- Three transgender statuses 
+- Age groups for people between 40 and 74 years old 
+- People who **responded** to the mammogram question 
+
+Look in the codebook to see how these things are coded: 
+
+- `TRNSGNDR` coded as 1, 2, or 3 (codebook page 83) 
+- `X_AGEG5YR` coded as categories 5 to 11 (codebook page 108) 
+- `HADMAM` response is *not BLANK* (codebook page 37) 
+
+```{r}
+# select variables and filter cases 
+brfss.2014.small <- brfss.2014 %>% 
+  select(TRNSGNDR, X_AGEG5YR, X_RACE, X_INCOMG,
+         X_EDUCAG, HLTHPLN1, HADMAM) %>%
+  filter(TRNSGNDR >= 1 & TRNSGNDR <= 3) %>%
+  filter(X_AGEG5YR >= 5 & X_AGEG5YR <= 11) %>% 
+  filter(!is.na(HADMAM))
+
+# check data set
+summary(object = brfss.2014.small)
+```
+
+# Data cleaning & management
+
+- We have the variables and cases we need for the table in the `brfss.2014.small` data frame 
+- Now we clean the data 
+- Start with adding labels to `TRNSGNDR` using `mutate()` and `recode_factor()` (see codebook page 83 for variable labels)
+
+```{r}
+# recode TRNSGNDR
+brfss.clean <- brfss.2014.small %>% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming'))
+# Check your work
+summary(object = brfss.clean)
+```
+
+Keep going: 
+
+```{r}
+# recode transgender, age, income, educ, health plan
+brfss.clean <- brfss.2014.small %>% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %>%
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %>%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %>%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %>%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) 
+```
+
+```{r}
+# Check your work
+summary(object = brfss.clean)
+```
+
+Recoding `X_RACE` is a little tricker, let's start by looking at the variable in `brfss.clean`:
+
+```{r}
+# table of race variable
+table(brfss.clean$X_RACE)
+```
+
+How do we translate this into the table categories? 
+
+For `X_RACE` it looks like: 
+
+- `1` in the data is `White` in the table 
+- `2` in the data is `Black` in the table 
+- `3` in the data is `Native American` in the table 
+- `4` & `5` in the data are `Asian/Pacific Islander` in the table 
+- `6`, `7`, `8`, & `9` in the data are `Other` in the table 
+
+We can add this and the `HADMAM` coding (see page 37 in the codebook) to the data cleaning.
+
+```{r}
+# recoding with all variable labels
+brfss.clean <- brfss.2014.small %>% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %>%
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %>%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %>%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %>%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %>%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = '',
+                                `2` = '',
+                                `3` = '',
+                                `4` = '',
+                                `5` = '',
+                                `6` = '',
+                                `7` = '',
+                                `8` = '',
+                                `9` = '')) %>%
+  mutate(HADMAM = recode_factor(.x = HADMAM,
+                                `1` = 'Yes',
+                                `2` = 'No',
+                                `7` = 'Don\'t know/not sure/missing',
+                                `9` = 'Refused'))
+```
+
+```{r}
+# check the recoding
+summary(object = brfss.clean)
+```
+
+# Make the table 
+
+- Use `tableone` to  make a table of all the variables 
+- Check the table against the one we are reproducing 
+
+```{r}
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+```
+
+# What went wrong?
+
+- The transgender percentages are different 
+- The race percentages are different 
+- The overall n is different 
+
+# What went wrong with the race variable?
+
+**Native Hawaiians or other Pacific Islander** (category 5) category of `X_RACE` was coded as `Other` during recoding rather than as `Asian/Pacific Islander`.
+
+```{r}
+# recoding with variable labels
+brfss.clean <- brfss.2014.small %>% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %>%
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %>%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %>%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %>%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %>%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = '',
+                                `2` = '',
+                                `3` = '',
+                                `4` = '',
+                                `5` = '',                
+                                `6` = '',
+                                `7` = '',
+                                `8` = '',
+                                `9` = '')) %>%
+  mutate(HADMAM = recode_factor(.x = HADMAM,
+                                `1` = 'Yes',
+                                `2` = 'No',
+                                `7` = 'Don\'t know/not sure/missing',
+                                `9` = 'Refused'))
+```
+
+```{r}
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+```
+
+# What went wrong with the transgender variable and the sample size?
+
+- The two "Refused" observations from `HADMAM` were removed from `TRNSGNDR` but were left in all other variables 
+- Use `if_else()` to recode `TRNSGNDR` variable as `NA` for these two cases but leave all the other cases alone 
+
+```{r}
+# recoding with variable labels
+# fixing recoding error and selecting variables in the table 
+brfss.clean <- brfss.2014.small %>% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %>%
+  mutate(TRNSGNDR = if_else(condition = HADMAM != 9,     # HADMAM is not 9
+                            true = TRNSGNDR,             # if true keep TRNSGNDR value
+                            false = as.factor(NA))) %>%  # if false make NA
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %>%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %>%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %>%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %>%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = 'White',
+                                `2` = 'Black',
+                                `3` = 'Native American',
+                                `4` = 'Asian/Pacific Islander',
+                                `5` = 'Other',
+                                `6` = 'Other',
+                                `7` = 'Other',
+                                `8` = 'Other',
+                                `9` = 'Other')) %>%
+  select(TRNSGNDR, X_AGEG5YR, X_RACE,X_INCOMG, X_EDUCAG, HLTHPLN1)
+```
+
+```{r}
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+```
+
+Great! We reproduced the table! Here is the full code formatted with prolog. 
+
+```{r}
+# PROLOG   ################################################################
+
+# PROJECT: NAME OF PROJECT HERE
+# PURPOSE: MAJOR POINT(S) OF WHAT I AM DOING WITH THE DATA HERE
+# DIR:     list directory(-ies) for files here
+# DATA:    list dataset file names/availability here, e.g.,
+#          filename.correctextention 
+#          somewebaddress.com 
+# AUTHOR:  AUTHOR NAME(S) 
+# CREATED: MONTH dd, YEAR 
+# LATEST:  MONTH dd, YEAR 
+# NOTES:   indent all additional lines under each heading, 
+#          & use the apostrophe hashmark bookends that appear  
+#          KEEP PURPOSE, AUTHOR, CREATED & LATEST ENTRIES IN UPPER CASE, 
+#          with appropriate case for DIR & DATA, lower case for notes 
+#          If multiple lines become too much, 
+#          simplify and write code book and readme. 
+
+# PROLOG   ###############################################################
+
+# make sure haven, tidyverse, tableone are installed 
+
+# open the haven package to read an xpt
+library(package = "haven")
+
+# create a temporary file to store the zipped file
+# before you open it
+temp <- tempfile(fileext = ".zip")
+
+# use download.file to put the zipped file in the temp file
+# this will take a couple of minutes depending on computer speed
+download.file(url = "http://www.cdc.gov/brfss/annual_data/2014/files/LLCP2014XPT.zip",
+              destfile = temp)
+
+# unzip it and read it
+brfss.2014 <- read_xpt(file = temp)
+
+# save it to data folder
+write.csv(x = brfss.2014, file = "data/brfss_2014.csv", row.names = FALSE)
+
+# import data 
+brfss.2014 <- read.csv(file = "data/brfss_2014.csv")
+
+# open tidyverse for data management
+library(package = "tidyverse") 
+
+# open tableone for making a table
+library(package = "tableone")
+
+# select variables and filter cases 
+brfss.2014.small <- brfss.2014 %>% 
+  select(TRNSGNDR, X_AGEG5YR, X_RACE, X_INCOMG,
+         X_EDUCAG, HLTHPLN1, HADMAM) %>%
+  filter(TRNSGNDR >= 1 & TRNSGNDR <= 3) %>%
+  filter(X_AGEG5YR >= 5 & X_AGEG5YR <= 11) %>% 
+  filter(!is.na(HADMAM))
+
+# recoding with variable labels
+# fixing recoding error and selecting variables in the table 
+brfss.clean <- brfss.2014.small %>% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %>%
+  mutate(TRNSGNDR = if_else(condition = HADMAM != 9,     # HADMAM is not 9
+                            true = TRNSGNDR,             # if true keep TRNSGNDR value
+                            false = as.factor(NA))) %>%  # if false make NA
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %>%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %>%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %>%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %>%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = 'White',
+                                `2` = 'Black',
+                                `3` = 'Native American',
+                                `4` = 'Asian/Pacific Islander',
+                                `5` = 'Other',
+                                `6` = 'Other',
+                                `7` = 'Other',
+                                `8` = 'Other',
+                                `9` = 'Other')) %>%
+  select(TRNSGNDR, X_AGEG5YR, X_RACE,X_INCOMG, X_EDUCAG, HLTHPLN1)
+
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+
+```
+
+# More practice!
+
+Add to the code to get even closer to the published version of the table...
+
+- Use `rename()` to name the variables something more intuitive 
+- Use the help documentation and online resources to keep formatting the table with better labels and other options 
+- Check out other options for table formatting and try something other than `tableone` (e.g., `knitr`)
+
+
