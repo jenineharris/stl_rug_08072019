@@ -18,3 +18,7 @@
 
 - Codebook: https://www.cdc.gov/brfss/annual_data/2014/pdf/CODEBOOK14_LLCP.pdf 
 - The article is saved in this repository and called `transgender-health-brfss.pdf`
+
+**The slides are available here:**
+
+- https://jenineharris.github.io/stl_rug_08072019/#1
