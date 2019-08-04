@@ -795,7 +795,7 @@ CreateTableOne(data = brfss.clean)
     + Using the `AGE` variable to get the subset for the table results in a different sample than using the `X_AGEG5YR` variable
 
 <center>
-<img src = "graphics/yike.JPG" width = "400"/>
+<img src = "graphics/yike.jpg" width = "400"/>
     
 ---
 
