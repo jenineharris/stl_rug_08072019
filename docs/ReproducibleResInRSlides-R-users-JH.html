@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Reproducible Research in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jenine K. Harris" />
+    <link href="ReproducibleResInRSlides-R-users-JH_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="ReproducibleResInRSlides-R-users-JH_files/remark-css-0.0.1/rladies.css" rel="stylesheet" />
+    <link href="ReproducibleResInRSlides-R-users-JH_files/remark-css-0.0.1/rladies-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="bcmods.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Reproducible Research in R
+## R Users STL
+### Jenine K. Harris
+### R-Ladies St. Louis | Washington University in St. Louis
+
+---
+
+
+##What is reproducibility?
+
+same data + same code
+
+* This analysis is **repeatable** 
+
+&lt;p&gt;same data + same or new code = same results
+
+* This analysis is **reproducible** 
+
+&lt;p&gt;new data + new code = same results 
+
+* This analysis is **replicable** 
+
+---
+
+##Science is facing a reproducibility crisis
+
+- 21% of 67 drug studies were reproducible (Prinz et al., 2011) 
+
+- 40-60% of psychology studies were reproducible (Open Science Collaboration, 2015) 
+
+- 61% of economics studies were reproducible (Camerer et al., 2016) 
+
+- 6% of p-values incorrectly reported in psychology papers (Nuitjen et al., 2004) 
+
+- 11% of p-values incorrectly reported in medical papers (Garcia-Berthou et al., 2004) 
+
+---
+
+##Why is this a problem?
+
+- Fraudulent or error-laden work wastes resources and puts people at risk
+
+- Over 400,000 subjects were enrolled and 70,501 treated in studies citing retracted papers (Steen, 2011)
+
+&lt;center&gt;
+&lt;img src = "graphics/disgust.png" width = "300"/&gt; 
+
+---
+
+##How do errors occur?
+
+&lt;center&gt;
+&lt;img src = "https://i.imgflip.com/1xiyc4.jpg" /&gt;
+
+---
+
+##How do errors occur?
+&lt;center&gt;
+&lt;img src = "https://i.imgflip.com/1xkjyl.jpg" /&gt;
+
+---
+
+##What can we do about it?
+
+- Use promising practices and existing guidelines to **format** statistical code 
+
+    + Google's R Style Guide 
+    
+    + General coding guidelines from other software 
+    
+- **Document** data and code for sharing 
+    
+- **Share** data (when possible) and statistical code in a repository like GitHub 
+
+---
+
+##Formatting statistical code 
+
+Three categories of code formatting: 
+
+- Use space wisely 
+
+- Choose meaningful names with consistent formatting 
+
+- Introduce and explain your code 
+
+---
+
+##Code Formatting: Using space wisely
+
+###Recommendation #1: Use white space to separate processes
+
+Bad:
+
+
+```r
+code_data_avail&lt;-cbind(table(r$Q25_2_1),table(r$Q25_2_2))
+colnames(code_data_avail)&lt;-c("Did you make your data publicly available?","Did you make your code publicly available?"); code_data_avail&lt;-melt(code_data_avail); colnames(code_data_avail)&lt;-c("avail","data_or_code","number")
+fig2&lt;-ggplot(code_data_avail, aes(data_or_code, number, fill=avail))+geom_col(position="dodge")+coord_flip()+theme(legend.position = 'top') + labs(y="Number of participants", x="", fill="")+scale_fill_manual(values=fills)
+fig2
+```
+
+Better:
+
+
+```r
+code_data_avail&lt;-cbind(table(r$Q25_2_1),table(r$Q25_2_2))
+colnames(code_data_avail)&lt;-c("Did you make your data publicly available?","Did you make your code publicly available?"); code_data_avail&lt;-melt(code_data_avail); colnames(code_data_avail)&lt;-c("avail","data_or_code","number")
+
+fig2&lt;-ggplot(code_data_avail, aes(data_or_code, number, fill=avail))+geom_col(position="dodge")+coord_flip()+theme(legend.position="top")+ labs(y="Number of participants", x="", fill="")+scale_fill_manual(values=fills)
+
+fig2
+```
+
+---
+
+##Code Formatting: Using space wisely
+
+###Recommendation #2: Limit line length to 80 characters
+
+
+```r
+code_data_avail&lt;-cbind(table(r$Q25_2_1),table(r$Q25_2_2))
+colnames(code_data_avail)&lt;-c("Did you make your data publicly available?", 
+"Did you make your code publicly available?") 
+code_data_avail&lt;-melt(code_data_avail)
+colnames(code_data_avail)&lt;-c("avail","data_or_code","number")
+
+fig2&lt;-ggplot(code_data_avail, 
+aes(data_or_code, number, fill=avail)) + 
+geom_col(position="dodge")+
+coord_flip()+ 
+theme(legend.position='top')+ 
+labs(y="Number of participants", x="", fill="")+ 
+scale_fill_manual(values=fills)
+
+fig2
+```
+
+---
+
+##Code Formatting: Using space wisely
+
+###Recommendation #3: Indent to group lines of code that belong together
+
+
+```r
+code_data_avail&lt;-cbind(table(r$Q25_2_1),table(r$Q25_2_2))
+colnames(code_data_avail)&lt;-c("Did you make your data publicly available?",
+                             "Did you make your code publicly available?") 
+code_data_avail&lt;-melt(code_data_avail)
+colnames(code_data_avail)&lt;-c("avail","data_or_code","number")
+
+fig2 &lt;- ggplot(code_data_avail, 
+               aes(data_or_code, number, fill=avail))+
+  geom_col(position="dodge")+  
+  coord_flip()+ 
+  theme(legend.position='top')+ 
+  labs(y="Number of participants", x="", fill="")+ 
+  scale_fill_manual(values=fills)
+fig2
+```
+
+---
+
+##Code Formatting: Using space wisely
+
+###Recommendation #4: Add spaces around operators (=, +, -, &lt;-, etc.)
+
+
+```r
+code_data_avail &lt;- cbind(table(r$Q25_2_1), table(r$Q25_2_2))
+colnames(code_data_avail) &lt;- c("Did you make your data publicly available?",
+                               "Did you make your code publicly available?") 
+code_data_avail &lt;- melt(code_data_avail)
+colnames(code_data_avail) &lt;- c("avail", "data_or_code", "number")
+
+fig2 &lt;- ggplot(code_data_avail, 
+               aes(data_or_code, number, fill = avail)) +
+  geom_col(position = "dodge") +  
+  coord_flip() + 
+  theme(legend.position = 'top') + 
+  labs(y = "Number of participants", x = "", fill = "") + 
+  scale_fill_manual(values = fills)
+fig2
+```
+
+---
+
+##Code Formatting: Choosing meaningful names with consistent formatting
+
+###Recommendation #5: Use meaningful names for objects
+
+Bad:
+
+
+```r
+code_data_avail &lt;- cbind(table(r$Q25_2_1), table(r$Q25_2_2))
+```
+
+Better: replace `r` and `Q25_2_1` and `Q25_2_2` with meaningful names:
+
+- `r` is the reproducibility survey, so replace with `repro.survey` 
+- `Q25_2_1` is the question about making data publicly available, replace with `data.avail` 
+- `Q25_2_2` is the question about making code publicly available, replace with `code.avail` 
+
+
+```r
+code_data_avail &lt;- cbind(table(repro.survey$data.avail), 
+                         table(repro.survey$code.avail))
+```
+
+---
+
+##Code Formatting: Choosing meaningful names with consistent formatting
+
+###Recommendation #6: Use dot.case, camelCase, or PascalCase for multi-part names
+
+- Google's R Style Guide recommends:
+
+    + dot.case for data frame and variable names (camelCase is also ok, but dot.case is preferred)
+    
+    + kCamelCase for constants 
+    
+    + UpperCamelCase for functions (a.k.a. PascalCase)
+
+- Note that some formats might not work in certain software packages
+
+---
+
+##Code Formatting: Choosing meaningful names with consistent formatting
+
+###Recommendation #7: Add meta-data to file names
+
+- Include meta-data like the date and project name in file names
+
+- Key principles:
+
+    1. Machine readable
+    
+    2. Works with default ordering
+    
+    3. Human readable
+
+- Examples:
+
+    * 180228_raw_postProgram.csv
+    
+    * 180302_clean_postProgram.csv
+
+---
+
+##Code Formatting: Introduce and explain your code 
+
+###Recommendation #8: Write a prolog to introduce the code
+
+
+```r
+# PROLOG   ################################################################
+
+# PROJECT: NAME OF PROJECT HERE
+# PURPOSE: MAJOR POINT(S) OF WHAT I AM DOING WITH THE DATA HERE
+# DIR:     list directory(-ies) for files here
+# DATA:    list dataset file names/availability here, e.g.,
+#          filename.correctextention 
+#          somewebaddress.com 
+# AUTHOR:  AUTHOR NAME(S) 
+# CREATED: MONTH dd, YEAR 
+# LATEST:  MONTH dd, YEAR 
+# NOTES:   indent all additional lines under each heading, 
+#          &amp; use the apostrophe hashmark bookends that appear  
+#          KEEP PURPOSE, AUTHOR, CREATED &amp; LATEST ENTRIES IN UPPER CASE, 
+#          with appropriate case for DIR &amp; DATA, lower case for notes 
+#          If multiple lines become too much, 
+#          simplify and write code book and readme. 
+
+# PROLOG   ###############################################################
+```
+
+---
+
+##Code Formatting: Introduce and explain your code 
+
+###Recommendation #9: Annotate to clarify code purpose
+
+- Use comments to:
+
+    * Explain the reason for the code (if needed) 
+    
+    * Explain functionality or choices that are not obvious or are different from expected 
+    
+    * Identify hacks or errors that should be fixed or rewritten
+    
+
+```r
+#check normality assumption for age variable
+histoAge &lt;- hist(age)
+histoAge
+```
+
+- Avoid using comments to:
+
+    * Explain poorly named objects 
+    
+    * Repeat things that can be easily understood from the code
+
+---
+
+##Code Formatting: Introduce and explain your code 
+
+###Recommendation #10: Use function arguments
+
+Ok: 
+
+
+```r
+# plot the frequency of coding practices
+fig2 &lt;- ggplot(code_data_avail, 
+               aes(data_or_code, number, fill = avail))
+```
+
+Better:
+
+
+```r
+# plot the frequency of coding practices
+fig2 &lt;- ggplot(data = code_data_avail, 
+               aes(x = data_or_code, y = number, fill = avail))
+```
+
+---
+
+##Let's reproduce a table!
+
+&lt;center&gt;
+&lt;img src = "graphics/trans_table.JPG" width = "250"/&gt;
+
+---
+
+##Before we begin the workshop 
+
+- Make a new folder on your laptop 
+- Save the workshop R Markdown file in the folder 
+- Make a subfolder called "data" inside the folder
+- You should have a folder with two things inside it: 
+    + The R Markdown file 
+    + An empty subfolder called "data"
+
+---
+
+##Data importing
+
+Code used to import and save the data described in the table from the internet (this takes a while):
+
+
+```r
+# open the haven package to read an xpt
+library(package = "haven")
+
+# create a temporary file to store the zipped file
+# before you open it
+temp &lt;- tempfile(fileext = ".zip")
+
+# use download.file to put the zipped file in the temp file
+# this will take a couple of minutes depending on computer speed
+download.file(url = "http://www.cdc.gov/brfss/annual_data/2014/files/LLCP2014XPT.zip",
+              destfile = temp)
+
+# unzip it and read it
+brfss.2014 &lt;- read_xpt(file = temp)
+
+# save it to data folder
+write.csv(x = brfss.2014, file = "data/brfss_2014.csv", row.names = FALSE)
+```
+
+---
+
+##Data importing
+
+Load libraries and import saved data:
+
+
+```r
+# open tidyverse for data management
+library(package = "tidyverse") 
+
+# open tableone for making a table
+library(package = "tableone")
+
+# import data 
+brfss.2014 &lt;- read.csv(file = "data/brfss_2014.csv")
+```
+
+
+
+This is a massive data set! Luckily, they document it really well in the [codebook](https://www.cdc.gov/brfss/annual_data/2014/pdf/CODEBOOK14_LLCP.pdf). 
+
+---
+
+##Data selection 
+
+Use `select()` in the `tidyverse` to select a subset of the variables for the table. Incude the `HADMAM` variable for reasons we will discover later. 
+
+
+```r
+# get a subset of variables 
+brfss.2014.small &lt;- brfss.2014 %&gt;%
+  select(TRNSGNDR, X_AGEG5YR, X_RACE, X_INCOMG,
+         X_EDUCAG, HLTHPLN1, HADMAM)
+
+# Take a quick look
+summary(object = brfss.2014.small)
+```
+
+```
+##     TRNSGNDR        X_AGEG5YR          X_RACE         X_INCOMG    
+##  Min.   :1.00     Min.   : 1.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:4.00     1st Qu.: 5.000   1st Qu.:1.000   1st Qu.:3.000  
+##  Median :4.00     Median : 8.000   Median :1.000   Median :5.000  
+##  Mean   :4.06     Mean   : 7.822   Mean   :1.992   Mean   :4.481  
+##  3rd Qu.:4.00     3rd Qu.:10.000   3rd Qu.:1.000   3rd Qu.:5.000  
+##  Max.   :9.00     Max.   :14.000   Max.   :9.000   Max.   :9.000  
+##  NA's   :310602                    NA's   :94                     
+##     X_EDUCAG        HLTHPLN1         HADMAM      
+##  Min.   :1.000   Min.   :1.000   Min.   :1.00    
+##  1st Qu.:2.000   1st Qu.:1.000   1st Qu.:1.00    
+##  Median :3.000   Median :1.000   Median :1.00    
+##  Mean   :2.966   Mean   :1.108   Mean   :1.22    
+##  3rd Qu.:4.000   3rd Qu.:1.000   3rd Qu.:1.00    
+##  Max.   :9.000   Max.   :9.000   Max.   :9.00    
+##                                  NA's   :208322
+```
+
+---
+
+##Data selection 
+
+The table does not include all 464,664 people in the data set. Reading through the paper and looking at the table you'd find that the table includes: 
+
+- Three transgender statuses 
+- Age groups for people between 40 and 74 years old 
+- People who **responded** to the mammogram question 
+
+Look in the codebook to see how these things are coded: 
+
+- `TRNSGNDR` coded as 1, 2, or 3 (codebook page 83) 
+- `X_AGEG5YR` coded as categories 5 to 11 (codebook page 108) 
+- `HADMAM` response is *not BLANK* (codebook page 37) 
+
+---
+
+##Data selection 
+
+- We can use `filter()` to keep only cases that fit these criteria 
+- Keep the data management from before and add to it 
+
+
+```r
+# select variables and filter cases 
+brfss.2014.small &lt;- brfss.2014 %&gt;% 
+  select(TRNSGNDR, X_AGEG5YR, X_RACE, X_INCOMG,
+         X_EDUCAG, HLTHPLN1, HADMAM) %&gt;%
+  filter(TRNSGNDR &gt;= 1 &amp; TRNSGNDR &lt;= 3) %&gt;%
+  filter(X_AGEG5YR &gt;= 5 &amp; X_AGEG5YR &lt;= 11) %&gt;% 
+  filter(!is.na(HADMAM))
+
+# check data set
+summary(object = brfss.2014.small)
+```
+
+```
+##     TRNSGNDR       X_AGEG5YR          X_RACE         X_INCOMG    
+##  Min.   :1.000   Min.   : 5.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:1.000   1st Qu.: 7.000   1st Qu.:1.000   1st Qu.:2.000  
+##  Median :2.000   Median : 8.000   Median :1.000   Median :4.000  
+##  Mean   :1.797   Mean   : 7.986   Mean   :2.054   Mean   :3.685  
+##  3rd Qu.:2.000   3rd Qu.: 9.000   3rd Qu.:2.000   3rd Qu.:5.000  
+##  Max.   :3.000   Max.   :11.000   Max.   :9.000   Max.   :9.000  
+##     X_EDUCAG        HLTHPLN1         HADMAM     
+##  Min.   :1.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:2.000   1st Qu.:1.000   1st Qu.:1.000  
+##  Median :3.000   Median :1.000   Median :1.000  
+##  Mean   :2.595   Mean   :1.108   Mean   :1.171  
+##  3rd Qu.:3.000   3rd Qu.:1.000   3rd Qu.:1.000  
+##  Max.   :4.000   Max.   :2.000   Max.   :9.000
+```
+
+---
+
+##Data cleaning &amp; management
+
+- We have the variables and cases we need for the table in the `brfss.2014.small` data frame 
+- Now we clean the data 
+- Start with adding labels to `TRNSGNDR` using `mutate()` and `recode_factor()` (see codebook page 83 for variable labels)
+
+
+```r
+# recode TRNSGNDR
+brfss.clean &lt;- brfss.2014.small %&gt;% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming'))
+# Check your work
+summary(object = brfss.clean)
+```
+
+```
+##                   TRNSGNDR     X_AGEG5YR          X_RACE     
+##  Male to female       : 77   Min.   : 5.000   Min.   :1.000  
+##  Female to male       :113   1st Qu.: 7.000   1st Qu.:1.000  
+##  Gender non-conforming: 32   Median : 8.000   Median :1.000  
+##                              Mean   : 7.986   Mean   :2.054  
+##                              3rd Qu.: 9.000   3rd Qu.:2.000  
+##                              Max.   :11.000   Max.   :9.000  
+##     X_INCOMG        X_EDUCAG        HLTHPLN1         HADMAM     
+##  Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:2.000   1st Qu.:2.000   1st Qu.:1.000   1st Qu.:1.000  
+##  Median :4.000   Median :3.000   Median :1.000   Median :1.000  
+##  Mean   :3.685   Mean   :2.595   Mean   :1.108   Mean   :1.171  
+##  3rd Qu.:5.000   3rd Qu.:3.000   3rd Qu.:1.000   3rd Qu.:1.000  
+##  Max.   :9.000   Max.   :4.000   Max.   :2.000   Max.   :9.000
+```
+
+---
+
+##Data cleaning &amp; management
+
+Keep going: 
+.pre[
+
+```r
+# recode transgender, age, income, educ, health plan
+brfss.clean &lt;- brfss.2014.small %&gt;% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %&gt;%
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %&gt;%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %&gt;%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %&gt;%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) 
+```
+]
+
+---
+
+##Data cleaning &amp; management 
+
+.pre[
+
+```r
+# Check your work
+summary(object = brfss.clean)
+```
+
+```
+##                   TRNSGNDR   X_AGEG5YR      X_RACE     
+##  Male to female       : 77   40-44:27   Min.   :1.000  
+##  Female to male       :113   45-49:27   1st Qu.:1.000  
+##  Gender non-conforming: 32   50-54:32   Median :1.000  
+##                              55-59:44   Mean   :2.054  
+##                              60-64:44   3rd Qu.:2.000  
+##                              65-69:24   Max.   :9.000  
+##                              70-74:24                  
+##                          X_INCOMG 
+##  Less than $15,000           :46  
+##  $15,000 to less than $25,000:44  
+##  $25,000 to less than $35,000:19  
+##  $35,000 to less than $50,000:26  
+##  $50,000 or more             :65  
+##  Don't know/not sure/missing :22  
+##                                   
+##                                     X_EDUCAG  HLTHPLN1      HADMAM     
+##  Did not graduate high school           :24   Yes:198   Min.   :1.000  
+##  Graduated high school                  :86   No : 24   1st Qu.:1.000  
+##  Attended College/Technical School      :68             Median :1.000  
+##  Graduated from College/Technical School:44             Mean   :1.171  
+##                                                         3rd Qu.:1.000  
+##                                                         Max.   :9.000  
+## 
+```
+]
+
+---
+
+##Data cleaning &amp; management
+
+Recoding `X_RACE` is a little tricker, let's start by looking at the variable in `brfss.clean`:
+
+
+```r
+# table of race variable
+table(brfss.clean$X_RACE)
+```
+
+```
+## 
+##   1   2   3   4   5   7   8   9 
+## 152  31   4   6   7   8  11   3
+```
+
+How do we translate this into the table categories? 
+
+&lt;img src = "graphics/trans_race.JPG" /&gt; 
+
+---
+
+##Data cleaning &amp; management 
+
+The codebook shows the following: 
+
+&lt;img src = "graphics/trans_race_codebook.JPG" width = "650"/&gt;
+
+---
+
+##Data cleaning &amp; management
+
+For `X_RACE` it looks like: 
+
+- `1` in the data is `White` in the table 
+- `2` in the data is `Black` in the table 
+- `3` in the data is `Native American` in the table 
+- `4` &amp; `5` in the data are `Asian/Pacific Islander` in the table 
+- `6`, `7`, `8`, &amp; `9` in the data are `Other` in the table 
+
+We can add this and the `HADMAM` coding (see page 37 in the codebook) to the data cleaning.
+
+---
+
+##Data cleaning &amp; management
+.pre[
+
+```r
+# recoding with all variable labels
+brfss.clean &lt;- brfss.2014.small %&gt;% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %&gt;%
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %&gt;%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %&gt;%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %&gt;%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %&gt;%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = 'White',
+                                `2` = 'Black',
+                                `3` = 'Native American',
+                                `4` = 'Asian/Pacific Islander',
+                                `5` = 'Asian/Pacific Islander',
+                                `6` = 'Other',
+                                `7` = 'Other',
+                                `8` = 'Other',
+                                `9` = 'Other')) %&gt;%
+  mutate(HADMAM = recode_factor(.x = HADMAM,
+                                `1` = 'Yes',
+                                `2` = 'No',
+                                `7` = 'Don\'t know/not sure/missing',
+                                `9` = 'Refused'))
+```
+]
+
+---
+
+##Data cleaning &amp; management
+
+
+
+```r
+# check the recoding
+summary(object = brfss.clean)
+```
+
+```
+##                   TRNSGNDR   X_AGEG5YR                     X_RACE   
+##  Male to female       : 77   40-44:27   White                 :152  
+##  Female to male       :113   45-49:27   Black                 : 31  
+##  Gender non-conforming: 32   50-54:32   Native American       :  4  
+##                              55-59:44   Asian/Pacific Islander: 13  
+##                              60-64:44   Other                 : 22  
+##                              65-69:24                               
+##                              70-74:24                               
+##                          X_INCOMG 
+##  Less than $15,000           :46  
+##  $15,000 to less than $25,000:44  
+##  $25,000 to less than $35,000:19  
+##  $35,000 to less than $50,000:26  
+##  $50,000 or more             :65  
+##  Don't know/not sure/missing :22  
+##                                   
+##                                     X_EDUCAG  HLTHPLN1      HADMAM   
+##  Did not graduate high school           :24   Yes:198   Yes    :198  
+##  Graduated high school                  :86   No : 24   No     : 22  
+##  Attended College/Technical School      :68             Refused:  2  
+##  Graduated from College/Technical School:44                          
+##                                                                      
+##                                                                      
+## 
+```
+
+---
+
+##Make the table 
+
+- Use `tableone` to  make a table of all the variables 
+- Check the table against the one we are reproducing 
+
+.pre[
+
+```r
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+```
+
+```
+##                                             
+##                                              Overall    
+##   n                                          222        
+##   TRNSGNDR (%)                                          
+##      Male to female                           77 (34.7) 
+##      Female to male                          113 (50.9) 
+##      Gender non-conforming                    32 (14.4) 
+##   X_AGEG5YR (%)                                         
+##      40-44                                    27 (12.2) 
+##      45-49                                    27 (12.2) 
+##      50-54                                    32 (14.4) 
+##      55-59                                    44 (19.8) 
+##      60-64                                    44 (19.8) 
+##      65-69                                    24 (10.8) 
+##      70-74                                    24 (10.8) 
+##   X_RACE (%)                                            
+##      White                                   152 (68.5) 
+##      Black                                    31 (14.0) 
+##      Native American                           4 ( 1.8) 
+##      Asian/Pacific Islander                   13 ( 5.9) 
+##      Other                                    22 ( 9.9) 
+##   X_INCOMG (%)                                          
+##      Less than $15,000                        46 (20.7) 
+##      $15,000 to less than $25,000             44 (19.8) 
+##      $25,000 to less than $35,000             19 ( 8.6) 
+##      $35,000 to less than $50,000             26 (11.7) 
+##      $50,000 or more                          65 (29.3) 
+##      Don't know/not sure/missing              22 ( 9.9) 
+##   X_EDUCAG (%)                                          
+##      Did not graduate high school             24 (10.8) 
+##      Graduated high school                    86 (38.7) 
+##      Attended College/Technical School        68 (30.6) 
+##      Graduated from College/Technical School  44 (19.8) 
+##   HLTHPLN1 = No (%)                           24 (10.8) 
+##   HADMAM (%)                                            
+##      Yes                                     198 (89.2) 
+##      No                                       22 ( 9.9) 
+##      Refused                                   2 ( 0.9)
+```
+]
+
+---
+
+##What went wrong?
+
+- The transgender percentages are different 
+- The race percentages are different 
+- The overall n is different 
+
+&lt;center&gt;
+&lt;img src = "graphics/disgust.png" width = "300" /&gt;
+
+---
+
+##What went wrong with the race variable?
+
+**Native Hawaiians or other Pacific Islander** (category 5) category of `X_RACE` was coded as `Other` during recoding rather than as `Asian/Pacific Islander`.
+
+.pre[
+
+```r
+# recoding with variable labels
+brfss.clean &lt;- brfss.2014.small %&gt;% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %&gt;%
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %&gt;%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %&gt;%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %&gt;%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %&gt;%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = 'White',
+                                `2` = 'Black',
+                                `3` = 'Native American',
+                                `4` = 'Asian/Pacific Islander',
+                                `5` = 'Other',                # coding change
+                                `6` = 'Other',
+                                `7` = 'Other',
+                                `8` = 'Other',
+                                `9` = 'Other')) %&gt;%
+  mutate(HADMAM = recode_factor(.x = HADMAM,
+                                `1` = 'Yes',
+                                `2` = 'No',
+                                `7` = 'Don\'t know/not sure/missing',
+                                `9` = 'Refused'))
+```
+]
+
+---
+
+##Check new coding 
+
+.pre[
+
+```r
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+```
+
+```
+##                                             
+##                                              Overall    
+##   n                                          222        
+##   TRNSGNDR (%)                                          
+##      Male to female                           77 (34.7) 
+##      Female to male                          113 (50.9) 
+##      Gender non-conforming                    32 (14.4) 
+##   X_AGEG5YR (%)                                         
+##      40-44                                    27 (12.2) 
+##      45-49                                    27 (12.2) 
+##      50-54                                    32 (14.4) 
+##      55-59                                    44 (19.8) 
+##      60-64                                    44 (19.8) 
+##      65-69                                    24 (10.8) 
+##      70-74                                    24 (10.8) 
+##   X_RACE (%)                                            
+##      White                                   152 (68.5) 
+##      Black                                    31 (14.0) 
+##      Native American                           4 ( 1.8) 
+##      Asian/Pacific Islander                    6 ( 2.7) 
+##      Other                                    29 (13.1) 
+##   X_INCOMG (%)                                          
+##      Less than $15,000                        46 (20.7) 
+##      $15,000 to less than $25,000             44 (19.8) 
+##      $25,000 to less than $35,000             19 ( 8.6) 
+##      $35,000 to less than $50,000             26 (11.7) 
+##      $50,000 or more                          65 (29.3) 
+##      Don't know/not sure/missing              22 ( 9.9) 
+##   X_EDUCAG (%)                                          
+##      Did not graduate high school             24 (10.8) 
+##      Graduated high school                    86 (38.7) 
+##      Attended College/Technical School        68 (30.6) 
+##      Graduated from College/Technical School  44 (19.8) 
+##   HLTHPLN1 = No (%)                           24 (10.8) 
+##   HADMAM (%)                                            
+##      Yes                                     198 (89.2) 
+##      No                                       22 ( 9.9) 
+##      Refused                                   2 ( 0.9)
+```
+]
+
+---
+
+##What went wrong with the transgender variable and the sample size?
+
+- The two "Refused" observations from `HADMAM` were removed from `TRNSGNDR` but were left in all other variables 
+- Use `if_else()` to recode `TRNSGNDR` variable as `NA` for these two cases but leave all the other cases alone 
+
+.pre[
+
+```r
+# recoding with variable labels
+# fixing recoding error and selecting variables in the table 
+brfss.clean &lt;- brfss.2014.small %&gt;% 
+  mutate(TRNSGNDR = recode_factor(.x = TRNSGNDR,
+                                  `1` = 'Male to female',
+                                  `2` = 'Female to male',
+                                  `3` = 'Gender non-conforming')) %&gt;%
+  mutate(TRNSGNDR = if_else(condition = HADMAM != 9,     # HADMAM is not 9
+                            true = TRNSGNDR,             # if true keep TRNSGNDR value
+                            false = as.factor(NA))) %&gt;%  # if false make NA
+  mutate(X_AGEG5YR = recode_factor(.x = X_AGEG5YR,
+                                  `5` = '40-44',
+                                  `6` = '45-49',
+                                  `7` = '50-54',
+                                  `8` = '55-59',
+                                  `9` = '60-64',
+                                  `10` = '65-69',
+                                  `11` = '70-74')) %&gt;%
+  mutate(X_INCOMG = recode_factor(.x = X_INCOMG,
+                                  `1` = 'Less than $15,000',
+                                  `2` = '$15,000 to less than $25,000',
+                                  `3` = '$25,000 to less than $35,000',
+                                  `4` = '$35,000 to less than $50,000',
+                                  `5` = '$50,000 or more',
+                                  `9` = 'Don\'t know/not sure/missing')) %&gt;%
+  mutate(X_EDUCAG = recode_factor(.x = X_EDUCAG,
+                                  `1` = 'Did not graduate high school',
+                                  `2` = 'Graduated high school',
+                                  `3` = 'Attended College/Technical School',
+                                  `4` = 'Graduated from College/Technical School',
+                                  `9` = NA_character_)) %&gt;%
+  mutate(HLTHPLN1 = recode_factor(.x = HLTHPLN1,
+                                  `1` = 'Yes',
+                                  `2` = 'No',
+                                  `7` = 'Don\'t know/not sure/missing',
+                                  `9` = 'Refused')) %&gt;%
+  mutate(X_RACE = recode_factor(.x = X_RACE, 
+                                `1` = 'White',
+                                `2` = 'Black',
+                                `3` = 'Native American',
+                                `4` = 'Asian/Pacific Islander',
+                                `5` = 'Other',
+                                `6` = 'Other',
+                                `7` = 'Other',
+                                `8` = 'Other',
+                                `9` = 'Other')) %&gt;%
+  select(TRNSGNDR, X_AGEG5YR, X_RACE,X_INCOMG, X_EDUCAG, HLTHPLN1)
+```
+]
+---
+
+##Check new coding 
+
+.pre[
+
+```r
+# make a table of all the variables in the data frame
+CreateTableOne(data = brfss.clean)
+```
+
+```
+##                                             
+##                                              Overall    
+##   n                                          222        
+##   TRNSGNDR (%)                                          
+##      Male to female                           77 (35.0) 
+##      Female to male                          112 (50.9) 
+##      Gender non-conforming                    31 (14.1) 
+##   X_AGEG5YR (%)                                         
+##      40-44                                    27 (12.2) 
+##      45-49                                    27 (12.2) 
+##      50-54                                    32 (14.4) 
+##      55-59                                    44 (19.8) 
+##      60-64                                    44 (19.8) 
+##      65-69                                    24 (10.8) 
+##      70-74                                    24 (10.8) 
+##   X_RACE (%)                                            
+##      White                                   152 (68.5) 
+##      Black                                    31 (14.0) 
+##      Native American                           4 ( 1.8) 
+##      Asian/Pacific Islander                    6 ( 2.7) 
+##      Other                                    29 (13.1) 
+##   X_INCOMG (%)                                          
+##      Less than $15,000                        46 (20.7) 
+##      $15,000 to less than $25,000             44 (19.8) 
+##      $25,000 to less than $35,000             19 ( 8.6) 
+##      $35,000 to less than $50,000             26 (11.7) 
+##      $50,000 or more                          65 (29.3) 
+##      Don't know/not sure/missing              22 ( 9.9) 
+##   X_EDUCAG (%)                                          
+##      Did not graduate high school             24 (10.8) 
+##      Graduated high school                    86 (38.7) 
+##      Attended College/Technical School        68 (30.6) 
+##      Graduated from College/Technical School  44 (19.8) 
+##   HLTHPLN1 = No (%)                           24 (10.8)
+```
+]
+---
+
+##Success? :-\
+
+- We reproduced the table, HOWEVER...
+    + The `X_RACE` variable was either recoded incorrectly or the table was mislabeled 
+    + Two cases were removed from the `TRNSGNDR` variable but not the other variables when computing the percentages
+    
+**BUT WAIT, THERE'S MORE**
+
+- The `X_AGEG5YR` variable was derived from `AGE` in the original data set 
+    + The number of people in categories 5-11 of `X_AGEG5YR` is not consistent with the number of people who reported being 40 through 74 years old as measured by the original `AGE` variable 
+    + Using the `AGE` variable to get the subset for the table results in a different sample than using the `X_AGEG5YR` variable
+
+&lt;center&gt;
+&lt;img src = "graphics/yike.JPG" width = "400"/&gt;
+    
+---
+
+##What can we do to improve?
+
+- Format and organize statistical code for collaboration and sharing 
+    + Consider using literate programming options like RMarkdown that integrate code with text and results 
+- Share statistical code and data (when possible) 
+- When statistical code cannot be shared, write methods sections that include enough detail to reproduce results 
+    + Still use literate programming and good code formatting practices! 
+
+&lt;center&gt;
+&lt;img src = "graphics/hudson-replies-code-documenting.JPG" width = "400"/&gt;
+
+---
+
+##Other reproducibility resources
+
+- We developed a **Toolkit** with tips and resources for increasing the reproducibility of analyses
+
+    + [https://coding2share.github.io/ReproducibilityToolkit/](https://coding2share.github.io/ReproducibilityToolkit/)
+
+- The modules in the toolkit cover
+
+    + Making private data shareable 
+    
+    + Preparing statistical code to share (what we demonstrated today!) 
+    
+    + Creating codebooks and other documentation 
+    
+    + Using GitHub to share code and data publicly 
+
+&lt;center&gt;
+&lt;img src = "graphics/c2s_logo.png" width = "100" /&gt; 
+
+---
+
+##Thanks!
+
+Jenine Harris
+
+[harrisj@wustl.edu](mailto:harrisj@wustl.edu)
+
+&lt;center&gt;
+&lt;img src = "graphics/aggressively-coding-tweet.PNG" width = "300"/&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
