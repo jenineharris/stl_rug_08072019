@@ -2,6 +2,7 @@
 
 **Before the workshop:** 
 
+- Make sure you have R and R Studio installed on the laptop you will use
 - Make a new folder on the laptop you will bring
 - Save the workshop R Markdown file, `08072019-rug-workshop-rmarkdown.Rmd`, in the folder 
 - Make a subfolder called "data" inside the folder
