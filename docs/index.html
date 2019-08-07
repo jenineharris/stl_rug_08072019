@@ -37,25 +37,33 @@ same data + same code
 
 ---
 
-##Science is facing a reproducibility crisis
+##Science is facing a research quality crisis
 
-- 21% of 67 drug studies were reproducible (Prinz et al., 2011) 
+- 88% of psychologists admitted to using at least one questionable research practice (QRP) (Agnoli et al., 2017)
+   + a questionable research practice is a choice during data cleaning, management, or analysis that appears incorrect or dishonest, resulting in more favorable research findings (e.g., p-hacking) 
 
-- 40-60% of psychology studies were reproducible (Open Science Collaboration, 2015) 
+- 21% of 67 drug studies were replicable (Prinz et al., 2011) 
 
-- 61% of economics studies were reproducible (Camerer et al., 2016) 
+- 40-60% of psychology studies were replicable (Open Science Collaboration, 2015) 
+
+- 61% of economics studies were replicable (Camerer et al., 2016) 
 
 - 6% of p-values incorrectly reported in psychology papers (Nuitjen et al., 2004) 
 
 - 11% of p-values incorrectly reported in medical papers (Garcia-Berthou et al., 2004) 
 
+
 ---
 
 ##Why is this a problem?
 
-- Fraudulent or error-laden work wastes resources and puts people at risk
+- 500-600 papers are retracted each year 
+    + 21.3% due to error 
+    + 67.4% due to misconduct (fraud, suspected fraud, plagiarism, etc) 
 
-- Over 400,000 subjects were enrolled and 70,501 treated in studies citing retracted papers (Steen, 2011)
+- Fraudulent and error-laden work wastes resources and puts people at risk
+    + Over 400,000 subjects were enrolled and 70,501 treated in studies citing retracted papers, many of which were retracted because they could not be replicated/reproduced (Steen, 2011)
+
 
 &lt;center&gt;
 &lt;img src = "graphics/disgust.png" width = "300"/&gt; 
@@ -76,6 +84,18 @@ same data + same code
 ---
 
 ##What can we do about it?
+
+- Replication provides the strongest means to ensure research quality and to validate findings 
+
+- Reproducing a study is an alternative when replication is not feasible 
+
+- Reproducing a study **does not ensure original analyses were correct**, but improves research quality by:
+    + verifying findings 
+    + identifying weaknesses, questionable research practices, and errors  
+    
+---
+
+##Ways to improve reproducibility
 
 - Use promising practices and existing guidelines to **format** statistical code 
 
@@ -355,15 +375,18 @@ fig2 &lt;- ggplot(data = code_data_avail,
 ##Before we begin the workshop 
 
 1) Install (if not already installed):
-    + R and R Studio  
-    + haven, tidyverse, tableone packages
+    - R and R Studio  
+    - haven, tidyverse, tableone packages
 
 2) Make a new folder on your laptop 
 
 3) Save the workshop R Markdown file, 08072019-rug-workshop-rmarkdown.Rmd, in the folder 
-    + available at https://github.com/jenineharris/stl_rug_08072019
+    - available at https://github.com/jenineharris/stl_rug_08072019
     
 4) Make a subfolder called "data" inside the folder 
+
+5) Open the pdf codebook for the 2014 BRFSS data (linked in GitHub)
+
 
 **If you are waiting for others to be ready, open the R Markdown file and run lines 33-51 to import the data.**
 
@@ -1070,11 +1093,15 @@ CreateTableOne(data = brfss.clean)
 
 ##What can we do to improve?
 
-- Format and organize statistical code for collaboration and sharing 
+- **Format** and organize statistical code for collaboration and sharing 
     + Consider using literate programming options like RMarkdown that integrate code with text and results 
-- Share statistical code and data (when possible) 
+    
+- **Document** data and code 
+
+- **Share** statistical code and data (when possible) 
+
 - When statistical code cannot be shared, write methods sections that include enough detail to reproduce results 
-    + Still use literate programming and good code formatting practices! 
+ 
 
 &lt;center&gt;
 &lt;img src = "graphics/hudson-replies-code-documenting.JPG" width = "400"/&gt;
